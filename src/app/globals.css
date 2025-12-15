@@ -1,1 +1,133 @@
 @import "tailwindcss";
+
+/* -------------------------------------------------
+   CSS Variables (Theme Tokens)
+-------------------------------------------------- */
+:root {
+  /* Colors */
+  --bg: 255 255 255;
+  --bg-secondary: 249 250 251;
+  --text-primary: 17 24 39;
+  --text-secondary: 75 85 99;
+  --border: 229 231 235;
+
+  --primary: 79 70 229; /* indigo-600 */
+  --primary-hover: 67 56 202;
+
+  /* Typography */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+}
+
+/* -------------------------
+   Dark Theme Overrides
+-------------------------- */
+html.dark {
+  --bg: 10 10 10;
+  --bg-secondary: 17 17 17;
+  --text-primary: 229 231 235;
+  --text-secondary: 156 163 175;
+  --border: 38 38 38;
+
+  --primary: 129 140 248; /* indigo-400 */
+  --primary-hover: 165 180 252;
+}
+
+/* -------------------------------------------------
+   Base Styles
+-------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: rgb(var(--bg));
+    color: rgb(var(--text-primary));
+    font-size: var(--text-base);
+    line-height: 1.6;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      "Noto Sans",
+      sans-serif;
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+    font-weight: 600;
+  }
+
+  p {
+    color: rgb(var(--text-secondary));
+  }
+
+  a {
+    color: rgb(var(--primary));
+  }
+
+  a:hover {
+    color: rgb(var(--primary-hover));
+  }
+}
+
+/* -------------------------------------------------
+   Utility helpers
+-------------------------------------------------- */
+@layer utilities {
+  .bg-primary {
+    background-color: rgb(var(--primary));
+  }
+
+  .bg-secondary {
+    background-color: rgb(var(--bg-secondary));
+  }
+
+  .text-primary {
+    color: rgb(var(--text-primary));
+  }
+
+  .text-secondary {
+    color: rgb(var(--text-secondary));
+  }
+
+  .border-theme {
+    border-color: rgb(var(--border));
+  }
+}
+
+/* -------------------------------------------------
+   Responsive Typography
+-------------------------------------------------- */
+@media (max-width: 640px) {
+  body {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 1.05rem;
+  }
+}
