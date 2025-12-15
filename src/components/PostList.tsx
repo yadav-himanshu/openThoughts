@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; // 🔹 NEW
 import {
   collection,
   query,
@@ -50,6 +51,8 @@ export default function PostList({
   fixedCategory = null,
   fixedAuthor = null,
 }: PostListProps) {
+  const router = useRouter(); // 🔹 NEW
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [lastDoc, setLastDoc] =
     useState<QueryDocumentSnapshot<DocumentData> | null>(null);
@@ -130,7 +133,7 @@ export default function PostList({
   ------------------------------ */
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
-      {/* Filters (Home only) */}
+      {/* Filters */}
       {!fixedCategory && !fixedAuthor && (
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <select
@@ -164,13 +167,16 @@ export default function PostList({
         {filteredPosts.map((post) => (
           <article
             key={post.id}
+            onClick={() => router.push(`/post/${post.id}`)} // 🔹 NEW
             className="rounded-xl border border-theme bg-secondary
-                       p-5 transition hover:shadow-sm"
+                       p-5 transition hover:shadow-sm
+                       cursor-pointer"
           >
             {/* Title */}
             <h2 className="text-lg font-semibold leading-snug">
               <Link
                 href={`/post/${post.id}`}
+                onClick={(e) => e.stopPropagation()} // 🔹 NEW
                 className="hover:text-primary-hover transition"
               >
                 {post.title}
@@ -182,6 +188,7 @@ export default function PostList({
               <span>By</span>
               <Link
                 href={`/author/${encodeURIComponent(post.authorName)}`}
+                onClick={(e) => e.stopPropagation()} // 🔹 NEW
                 className="font-medium text-primary hover:underline"
               >
                 {post.authorName}
@@ -189,6 +196,7 @@ export default function PostList({
               <span>•</span>
               <Link
                 href={`/category/${encodeURIComponent(post.category)}`}
+                onClick={(e) => e.stopPropagation()} // 🔹 NEW
                 className="hover:underline"
               >
                 {post.category}
@@ -203,6 +211,9 @@ export default function PostList({
             {/* Content Preview */}
             <p className="mt-4 text-sm text-secondary leading-relaxed">
               {post.content.slice(0, 60)}…
+              <span className="ml-1 text-primary font-medium">
+                Tap to read full post →
+              </span>
             </p>
           </article>
         ))}
