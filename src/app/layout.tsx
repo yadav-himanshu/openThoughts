@@ -7,7 +7,6 @@ import { ReactNode } from "react";
 export const metadata = {
   title: "OpenThoughts",
   description: "Share your thoughts with the world",
-  icon: "./logo.png",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

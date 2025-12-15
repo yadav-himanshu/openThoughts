@@ -114,12 +114,12 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <button
+        {/* <button
           onClick={() => signOut(auth)}
           className="text-sm text-secondary hover:text-red-500 transition"
         >
           Logout
-        </button>
+        </button> */}
       </div>
 
       {/* Filter */}

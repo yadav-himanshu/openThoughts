@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import logo from "../../public/logoOT.png"
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   collection,
@@ -62,13 +64,65 @@ export default function Footer() {
   if (!mounted) return null;
 
   return (
-    <footer className="mt-16 border-t border-theme bg-secondary">
-      <div className="max-w-6xl mx-auto px-4 py-12 grid gap-10 md:grid-cols-3">
+    <footer className="mt-20 bg-secondary border-t border-theme">
+      {/* Top Section */}
+      <div className="max-w-6xl mx-auto px-4 py-14 grid gap-12 md:grid-cols-4">
+        {/* Brand */}
+        <div className="md:col-span-2 flex flex-col gap-4">
+          <Link href="/" className="flex items-center gap-3">
+            <Image
+              src={logo} // 👈 place logo in /public/logo.png
+              alt="OpenThoughts logo"
+              // width={40}
+              height={50}
+              className="rounded-lg"
+            />
+            {/* <span className="text-xl font-semibold text-primary">
+              OpenThoughts
+            </span> */}
+          </Link>
+
+          <p className="text-sm text-secondary max-w-md leading-relaxed">
+            OpenThoughts is a space for honest words, meaningful stories,
+            and ideas worth sharing. Write freely, read deeply, and let
+            thoughts travel beyond screens.
+          </p>
+        </div>
+
+        {/* Navigation */}
+        <div>
+          <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-secondary">
+            Explore
+          </h4>
+          <ul className="space-y-3 text-sm">
+            <li>
+              <Link href="/" className="hover:text-primary transition">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link href="/about" className="hover:text-primary transition">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:text-primary transition">
+                Contact
+              </Link>
+            </li>
+            <li>
+              <Link href="/submit" className="hover:text-primary transition">
+                Submit a Story
+              </Link>
+            </li>
+          </ul>
+        </div>
+
         {/* Recent Posts */}
         <div>
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-secondary">
-            Recent Posts
-          </h3>
+          <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-secondary">
+            Recent
+          </h4>
 
           {recentPosts.length === 0 ? (
             <p className="text-sm text-secondary">No posts yet.</p>
@@ -78,7 +132,7 @@ export default function Footer() {
                 <li key={post.id}>
                   <Link
                     href={`/post/${post.id}`}
-                    className="block truncate text-primary transition hover:underline"
+                    className="block truncate hover:text-primary transition"
                     title={post.title}
                   >
                     {post.title}
@@ -88,36 +142,33 @@ export default function Footer() {
             </ul>
           )}
         </div>
+      </div>
 
-        {/* CTA Banner (Improved for dark & light) */}
-        <div
-          className="md:col-span-2 rounded-2xl
-                     bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600
-                     p-8 text-white flex flex-col gap-5
-                     md:flex-row md:items-center md:justify-between
-                     shadow-lg"
-        >
-          <p className="text-lg font-semibold leading-snug max-w-md">
-            Have something meaningful to share?
-            <br className="hidden sm:block" />
-            Let your words inspire others.
+      {/* CTA Strip (Unique Footer Touch) */}
+      <div className="mx-4 mb-10 rounded-2xl bg-linear-to-r from-slate-900 via-slate-800 to-slate-700 text-white">
+        <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-lg font-medium">
+            ✍️ Your thoughts matter.
+            <span className="block text-sm text-slate-300">
+              Share something meaningful today.
+            </span>
           </p>
 
           <Link
             href="/submit"
             className="inline-flex items-center justify-center
-                       rounded-full bg-white/90 px-6 py-2.5
-                       text-sm font-semibold text-gray-900
-                       transition hover:bg-white hover:scale-105"
+                       rounded-full bg-white px-6 py-2.5
+                       text-sm font-semibold text-slate-900
+                       transition hover:bg-slate-100 hover:scale-105"
           >
-            ✍️ Post Your Story
+            Start Writing
           </Link>
         </div>
       </div>
 
       {/* Bottom */}
       <div className="border-t border-theme py-6 text-center text-xs text-secondary">
-        © {year} OpenThoughts. All rights reserved.
+        © {year} OpenThoughts · Built for thinkers & storytellers
       </div>
     </footer>
   );

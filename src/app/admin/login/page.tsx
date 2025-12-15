@@ -27,10 +27,11 @@ export default function AdminLogin() {
     <main className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleLogin}
-        className="w-full max-w-sm rounded-xl border border-theme
-                   bg-secondary p-6 shadow-sm"
+        className="w-full max-w-sm rounded-xl border border-theme bg-secondary p-6 shadow-sm"
       >
-        <h1 className="mb-6 text-xl font-bold text-center">Admin Login</h1>
+        <h1 className="mb-6 text-xl font-bold text-center text-primary">
+          Admin Login
+        </h1>
 
         {error && (
           <p className="mb-4 text-sm text-red-500 text-center">{error}</p>
@@ -40,10 +41,7 @@ export default function AdminLogin() {
           <input
             type="email"
             placeholder="Admin Email"
-            className="w-full rounded-md border border-theme bg-transparent
-                       px-3 py-2 text-sm text-primary
-                       placeholder:text-secondary
-                       focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full rounded-md border border-theme bg-transparent px-3 py-2 text-sm text-primary placeholder:text-secondary focus:outline-none focus:ring-1 focus:ring-primary"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -52,10 +50,7 @@ export default function AdminLogin() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full rounded-md border border-theme bg-transparent
-                       px-3 py-2 text-sm text-primary
-                       placeholder:text-secondary
-                       focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full rounded-md border border-theme bg-transparent px-3 py-2 text-sm text-primary placeholder:text-secondary focus:outline-none focus:ring-1 focus:ring-primary"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -64,9 +59,7 @@ export default function AdminLogin() {
 
         <button
           type="submit"
-          className="mt-6 w-full rounded-md bg-primary
-                     py-2 text-sm font-medium text-white
-                     transition hover:opacity-90"
+          className="mt-6 w-full rounded-md bg-primary py-2 text-sm font-medium text-white transition hover:opacity-90"
         >
           Login
         </button>
