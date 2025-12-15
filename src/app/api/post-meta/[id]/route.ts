@@ -1,17 +1,22 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export async function GET(
-  _req: Request,
-  { params }: { params: { id: string } },
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const ref = doc(db, "posts", params.id);
+    const { id } = await context.params; // ✅ REQUIRED
+
+    const ref = doc(db, "posts", id);
     const snap = await getDoc(ref);
 
     if (!snap.exists()) {
-      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Post not found" },
+        { status: 404 }
+      );
     }
 
     const data = snap.data();
@@ -22,10 +27,10 @@ export async function GET(
       authorName: data.authorName,
       category: data.category,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch post metadata" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
