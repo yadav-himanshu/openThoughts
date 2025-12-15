@@ -1,10 +1,16 @@
 import PostList from "@/components/PostList";
 
-export default function AuthorPage({ params }: { params: { name: string } }) {
-  let author = params.name;
+export default async function AuthorPage({
+  params,
+}: {
+  params: Promise<{ name: string }>;
+}) {
+  const { name } = await params;
+
+  let author = name;
 
   try {
-    author = decodeURIComponent(params.name);
+    author = decodeURIComponent(name);
   } catch {
     // fallback to raw value if decoding fails
   }
