@@ -7,58 +7,67 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
+/* ✅ REQUIRED for Firebase */
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://open-thoughts-pi.vercel.app";
 
-  // ✅ Only approved posts
-  const q = query(
-    collection(db, "posts"),
-    where("approved", "==", true)
-  );
+  try {
+    const q = query(
+      collection(db, "posts"),
+      where("approved", "==", true)
+    );
 
-  const snapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
 
-  const postUrls: MetadataRoute.Sitemap = [];
-  const authors = new Set<string>();
-  const categories = new Set<string>();
+    const urls: MetadataRoute.Sitemap = [
+      {
+        url: baseUrl,
+        lastModified: new Date(),
+      },
+    ];
 
-  snapshot.docs.forEach((doc) => {
-    const data = doc.data();
+    const authors = new Set<string>();
+    const categories = new Set<string>();
 
-    // Posts
-    postUrls.push({
-      url: `${baseUrl}/post/${doc.id}`,
-      lastModified: new Date(),
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data();
+
+      urls.push({
+        url: `${baseUrl}/post/${doc.id}`,
+        lastModified: new Date(),
+      });
+
+      if (data.authorName) authors.add(data.authorName);
+      if (data.category) categories.add(data.category);
     });
 
-    // Collect authors & categories
-    if (data.authorName) {
-      authors.add(data.authorName);
-    }
-    if (data.category) {
-      categories.add(data.category);
-    }
-  });
+    authors.forEach((author) => {
+      urls.push({
+        url: `${baseUrl}/author/${encodeURIComponent(author)}`,
+        lastModified: new Date(),
+      });
+    });
 
-  // Author pages
-  const authorUrls = Array.from(authors).map((author) => ({
-    url: `${baseUrl}/author/${encodeURIComponent(author)}`,
-    lastModified: new Date(),
-  }));
+    categories.forEach((category) => {
+      urls.push({
+        url: `${baseUrl}/category/${encodeURIComponent(category)}`,
+        lastModified: new Date(),
+      });
+    });
 
-  // Category pages
-  const categoryUrls = Array.from(categories).map((category) => ({
-    url: `${baseUrl}/category/${encodeURIComponent(category)}`,
-    lastModified: new Date(),
-  }));
+    return urls;
+  } catch (error) {
+    console.error("Sitemap generation failed", error);
 
-  return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-    },
-    ...postUrls,
-    ...authorUrls,
-    ...categoryUrls,
-  ];
+    // ❗ Return at least homepage so Google doesn't fail
+    return [
+      {
+        url: baseUrl,
+        lastModified: new Date(),
+      },
+    ];
+  }
 }
