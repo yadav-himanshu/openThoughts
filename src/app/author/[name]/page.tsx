@@ -43,9 +43,7 @@ export default async function AuthorPage({
   return (
     <main>
       <section className="max-w-6xl mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-2xl md:text-3xl font-bold">
-          Posts by {author}
-        </h1>
+        <h1 className="text-2xl md:text-3xl font-bold">Posts by {author}</h1>
         <p className="mt-2 max-w-2xl text-secondary">
           Explore all writings shared by {author}.
         </p>
