@@ -37,7 +37,9 @@ export default function ScrollToTop() {
         }
       `}
     >
-      <span className="text-lg text-primary"><ArrowUp/></span>
+      <span className="text-lg text-primary">
+        <ArrowUp />
+      </span>
     </button>
   );
 }

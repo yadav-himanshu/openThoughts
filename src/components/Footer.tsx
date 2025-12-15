@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import logo from "../../public/logoOT.png"
+import logo from "../../public/logoOT.png";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
@@ -83,9 +83,9 @@ export default function Footer() {
           </Link>
 
           <p className="text-sm text-secondary max-w-md leading-relaxed">
-            OpenThoughts is a space for honest words, meaningful stories,
-            and ideas worth sharing. Write freely, read deeply, and let
-            thoughts travel beyond screens.
+            OpenThoughts is a space for honest words, meaningful stories, and
+            ideas worth sharing. Write freely, read deeply, and let thoughts
+            travel beyond screens.
           </p>
         </div>
 

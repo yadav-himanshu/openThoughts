@@ -5,9 +5,8 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Menu, X } from "lucide-react";
-import logo from "../../public/logoOT.png"
+import logo from "../../public/logoOT.png";
 import Image from "next/image";
-
 
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
@@ -35,20 +34,19 @@ export default function Navbar() {
       <nav className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link
-  href="/"
-  className="flex items-center gap-2 text-lg font-semibold text-primary"
->
-  <Image
-    src={logo}
-    alt="OpenThoughts logo"
-    // width={200}
-    height={60}
-    priority
-    className="rounded-sm"
-  />
-  {/* <span className="tracking-tight">OpenThoughts</span> */}
-</Link>
-
+          href="/"
+          className="flex items-center gap-2 text-lg font-semibold text-primary"
+        >
+          <Image
+            src={logo}
+            alt="OpenThoughts logo"
+            // width={200}
+            height={60}
+            priority
+            className="rounded-sm"
+          />
+          {/* <span className="tracking-tight">OpenThoughts</span> */}
+        </Link>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8 text-sm text-secondary">
@@ -80,7 +78,7 @@ export default function Navbar() {
                          text-sm font-medium text-white
                          transition hover:opacity-90"
             >
-              Post a Story
+              ✍️ Let Your Thoughts Speak
             </Link>
           ) : (
             <>
@@ -136,14 +134,11 @@ export default function Navbar() {
                 className="mt-2 rounded-full bg-primary px-4 py-2
                            text-center text-white"
               >
-                Post a Story
+                ✍️ Let Your Thoughts Speak
               </Link>
             ) : (
               <>
-                <Link
-                  href="/admin/dashboard"
-                  onClick={() => setOpen(false)}
-                >
+                <Link href="/admin/dashboard" onClick={() => setOpen(false)}>
                   Admin
                 </Link>
                 <button

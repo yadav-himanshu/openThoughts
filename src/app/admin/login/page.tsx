@@ -4,6 +4,13 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+// export const metadata = {
+//   robots: {
+//     index: false,
+//     follow: false,
+//   },
+// };
+
 
 export default function AdminLogin() {
   const router = useRouter();
