@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ThemeToggle from "@/components/ThemeToggle";
 import ScrollToTop from "@/components/ScrollToTop";
+import { AuthProvider } from "@/context/AuthContext";
 import { ReactNode } from "react";
 import type { Metadata } from "next";
 
@@ -61,11 +62,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="hi">
       <body>
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <ScrollToTop />
-        <ThemeToggle />
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          <main className="min-h-screen">{children}</main>
+          <ScrollToTop />
+          <ThemeToggle />
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

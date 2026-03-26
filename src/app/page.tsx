@@ -7,7 +7,7 @@ import PostList from "@/components/PostList";
 export const metadata: Metadata = {
   title: "Home",
   description:
-    "Read and share Shayari, Poems, Short Stories, Quotes, and personal Thoughts in Hindi and English on OpenThoughts.",
+    "A curated sanctuary for Shayari, Poems, Short Stories, and personal reflections. Share your inner world on the OpenThoughts collective.",
   alternates: {
     canonical: "/",
   },
@@ -16,14 +16,16 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main>
-      {/* SEO Heading (Visible but subtle) */}
-      <section className="max-w-6xl mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-2xl md:text-3xl font-bold mb-3">
-          Share and explore meaningful thoughts
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-6 pt-16 pb-12">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-widest mb-6 border border-indigo-500/20">
+          The Collective
+        </div>
+        <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-8 tracking-tighter leading-[0.95] italic">
+          Where every <span className="text-indigo-600 dark:text-indigo-400">thought</span> finds its <span className="text-indigo-600 dark:text-indigo-400">sanctuary.</span>
         </h1>
-        <p className="max-w-2xl text-secondary leading-relaxed">
-          Discover Shayari, Poems, Short Stories, Quotes, and personal thoughts
-          shared by real people — in Hindi and English.
+        <p className="max-w-2xl text-lg text-slate-600 dark:text-slate-400 leading-relaxed font-normal italic font-serif">
+          A sanctuary for authors, poets, and deep thinkers. Share your inner world, discover hidden gems, and let your voice be heard in Hindi or English.
         </p>
       </section>
 

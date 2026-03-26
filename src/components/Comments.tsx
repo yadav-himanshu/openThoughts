@@ -12,8 +12,8 @@ import {
   doc,
   Timestamp,
 } from "firebase/firestore";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { db, auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthContext";
 
 /* -----------------------------
    Types
@@ -24,6 +24,7 @@ type Comment = {
   name: string;
   comment: string;
   createdAt: Timestamp;
+  authorId?: string;
 };
 
 type CommentsProps = {
@@ -31,21 +32,17 @@ type CommentsProps = {
 };
 
 export default function Comments({ postId }: CommentsProps) {
+  const { user, isAdmin } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(user?.displayName || "");
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
-  const [admin, setAdmin] = useState<User | null>(null);
 
-  /* -----------------------------
-     Detect Admin (UNCHANGED)
-  ------------------------------ */
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      setAdmin(user);
-    });
-    return () => unsub();
-  }, []);
+    if (user && !name) {
+      setName(user.displayName || "User");
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchComments();
@@ -86,6 +83,7 @@ export default function Comments({ postId }: CommentsProps) {
       name: name.trim(),
       comment: comment.trim(),
       createdAt: Timestamp.now(),
+      authorId: user ? user.uid : "guest",
     });
 
     setName("");
@@ -121,17 +119,19 @@ export default function Comments({ postId }: CommentsProps) {
         className="mb-10 space-y-4 rounded-xl border border-theme
                    bg-secondary p-5"
       >
-        <input
-          type="text"
-          placeholder="Your name"
-          className="w-full rounded-md border border-theme bg-transparent
-                     px-3 py-2 text-sm text-primary
-                     placeholder:text-secondary
-                     focus:outline-none focus:ring-1 focus:ring-primary"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+        {(!user && !isAdmin) && (
+          <input
+            type="text"
+            placeholder="Your name"
+            className="w-full rounded-md border border-theme bg-transparent
+                       px-3 py-2 text-sm text-primary
+                       placeholder:text-secondary
+                       focus:outline-none focus:ring-1 focus:ring-primary"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        )}
 
         <textarea
           placeholder="Write a comment..."
@@ -176,7 +176,7 @@ export default function Comments({ postId }: CommentsProps) {
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium">{c.name}</p>
 
-                {admin && (
+                {(isAdmin || (user && user.uid === c.authorId)) && (
                   <button
                     onClick={() => deleteComment(c.id)}
                     className="text-xs text-red-500 hover:underline"

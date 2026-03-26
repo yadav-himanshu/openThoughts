@@ -25,20 +25,20 @@ export default function ScrollToTop() {
       aria-label="Scroll to top"
       className={`
         fixed right-6 z-40
-        bottom-22   /* 👈 sits nicely ABOVE ThemeToggle */
-        rounded-full border border-theme
-        bg-secondary p-3 shadow-lg backdrop-blur
+        bottom-24
+        h-14 w-14 rounded-full border border-slate-200 dark:border-slate-800
+        bg-white dark:bg-slate-900 shadow-2xl shadow-indigo-500/10 
+        flex items-center justify-center
         transition-all duration-300 ease-out
-        hover:scale-105
-        ${
-          visible
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-6 pointer-events-none"
+        hover:scale-110 active:scale-95
+        ${visible
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-6 pointer-events-none"
         }
       `}
     >
-      <span className="text-lg text-primary">
-        <ArrowUp />
+      <span className="text-indigo-600 dark:text-indigo-400">
+        <ArrowUp size={24} />
       </span>
     </button>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PostList from "@/components/PostList";
+import FollowButton from "@/components/FollowButton";
 
 /* -----------------------------
    SEO Metadata
@@ -14,7 +15,7 @@ export async function generateMetadata({
   let authorName = name;
   try {
     authorName = decodeURIComponent(name);
-  } catch {}
+  } catch { }
 
   return {
     title: `Posts by ${authorName}`,
@@ -38,15 +39,20 @@ export default async function AuthorPage({
   let author = name;
   try {
     author = decodeURIComponent(name);
-  } catch {}
+  } catch { }
 
   return (
     <main>
       <section className="max-w-6xl mx-auto px-4 pt-10 pb-4">
-        <h1 className="text-2xl md:text-3xl font-bold">Posts by {author}</h1>
-        <p className="mt-2 max-w-2xl text-secondary">
-          Explore all writings shared by {author}.
-        </p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">Posts by {author}</h1>
+            <p className="mt-2 max-w-2xl text-secondary">
+              Explore all writings shared by {author}.
+            </p>
+          </div>
+          <FollowButton authorName={author} />
+        </div>
       </section>
 
       <PostList fixedAuthor={author} />

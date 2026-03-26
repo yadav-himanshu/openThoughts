@@ -36,10 +36,10 @@ export default function ThemeToggle() {
     <button
       onClick={toggleTheme}
       aria-label="Toggle theme"
-      className="fixed bottom-6 right-6 z-50 rounded-full border border-theme bg-secondary
-                 p-3 shadow-lg backdrop-blur transition hover:scale-105"
+      className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900
+                 shadow-2xl shadow-indigo-500/10 flex items-center justify-center transition-all hover:scale-110 active:scale-90"
     >
-      <span className="text-lg">{dark ? "🌙" : "☀️"}</span>
+      <span className="text-xl">{dark ? "🌙" : "☀️"}</span>
     </button>
   );
 }
