@@ -10,10 +10,13 @@ import {
   doc,
   query,
   orderBy,
+  getCountFromServer,
+  where,
 } from "firebase/firestore";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Users, FileText, Clock, MessageSquare, Shield, CheckCircle, Trash2, Edit3, Eye, AlertCircle } from "lucide-react";
 
 /* -----------------------------
    Types
@@ -26,41 +29,47 @@ type Post = {
   language: string;
   content: string;
   approved: boolean;
+  slug?: string;
+  deleteRequested?: boolean;
 };
 
 /* -----------------------------
    Status Filter
 ------------------------------ */
-type StatusFilter = "all" | "pending" | "approved";
+type StatusFilter = "all" | "pending" | "approved" | "requests";
 
 export default function AdminDashboard() {
   const router = useRouter();
+  const { user, isAdmin, loading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
   const [filter, setFilter] = useState<StatusFilter>("all");
+  const [stats, setStats] = useState({
+    users: 0,
+    posts: 0,
+    pending: 0,
+    comments: 0,
+    deleteRequests: 0
+  });
 
-  /* -----------------------------
-     Auth check (UNCHANGED)
-  ------------------------------ */
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push("/admin/login");
+    if (!authLoading) {
+      if (!user || !isAdmin) {
+        router.push("/");
       } else {
         fetchAllPosts();
+        fetchStats();
         setLoading(false);
       }
-    });
-
-    return () => unsub();
-  }, [router]);
+    }
+  }, [user, isAdmin, authLoading, router]);
 
   /* -----------------------------
      Fetch all posts (UNCHANGED)
   ------------------------------ */
   const fetchAllPosts = async () => {
-    const q = query(collection(db, "posts"), orderBy("approved", "asc"));
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
 
     const result: Post[] = snapshot.docs.map((docSnap) => ({
@@ -69,6 +78,34 @@ export default function AdminDashboard() {
     }));
 
     setPosts(result);
+  };
+
+  const fetchStats = async () => {
+    try {
+      const usersCol = collection(db, "users");
+      const postsCol = collection(db, "posts");
+      const pendingQuery = query(collection(db, "posts"), where("approved", "==", false));
+      const requestsQuery = query(collection(db, "posts"), where("deleteRequested", "==", true));
+      const commentsCol = collection(db, "comments");
+
+      const [uSnap, pSnap, pendSnap, reqSnap, cSnap] = await Promise.all([
+        getCountFromServer(usersCol),
+        getCountFromServer(postsCol),
+        getCountFromServer(pendingQuery),
+        getCountFromServer(requestsQuery),
+        getCountFromServer(commentsCol)
+      ]);
+
+      setStats({
+        users: uSnap.data().count,
+        posts: pSnap.data().count,
+        pending: pendSnap.data().count,
+        deleteRequests: reqSnap.data().count,
+        comments: cSnap.data().count
+      });
+    } catch (err) {
+      console.error("Failed to fetch stats", err);
+    }
   };
 
   /* -----------------------------
@@ -83,8 +120,13 @@ export default function AdminDashboard() {
 
   const deletePost = async (id: string) => {
     if (!confirm("Delete this post permanently?")) return;
-    await deleteDoc(doc(db, "posts", id));
-    fetchAllPosts();
+    try {
+      await deleteDoc(doc(db, "posts", id));
+      fetchAllPosts();
+    } catch (err: any) {
+      console.error(err);
+      alert("Failed to delete post. Please verify your Firestore security rules and Admin UID. Error: " + err.message);
+    }
   };
 
   /* -----------------------------
@@ -93,133 +135,137 @@ export default function AdminDashboard() {
   const filteredPosts = posts.filter((post) => {
     if (filter === "pending") return !post.approved;
     if (filter === "approved") return post.approved;
+    if (filter === "requests") return (post as any).deleteRequested === true;
     return true;
   });
 
   /* -----------------------------
      UI
   ------------------------------ */
-  if (loading) {
-    return <p className="p-6 text-secondary">Checking auth...</p>;
-  }
-
   return (
-    <section className="max-w-6xl mx-auto px-4 py-10">
+    <section className="max-w-7xl mx-auto px-6 py-12">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <p className="text-sm text-secondary">
-            Manage posts, approvals, and edits
-          </p>
+      <div className="mb-12">
+        <div className="flex items-center gap-3 mb-2 text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest text-[10px]">
+          <Shield size={12} />
+          Central Command
         </div>
-
-        {/* <button
-          onClick={() => signOut(auth)}
-          className="text-sm text-secondary hover:text-red-500 transition"
-        >
-          Logout
-        </button> */}
+        <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-2 tracking-tighter">Admin Dashboard.</h1>
+        <p className="text-slate-600 dark:text-slate-400 font-medium italic font-serif">
+          Moderation hub for the OpenThoughts collective.
+        </p>
       </div>
 
-      {/* Filter */}
-      <div className="mb-8">
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as StatusFilter)}
-          className="rounded-md border border-theme bg-secondary
-                     px-3 py-2 text-sm text-primary
-                     focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          <option value="all">All Posts</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-        </select>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+        {[
+          { label: "Total Minds", value: stats.users, icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { label: "Total Stories", value: stats.posts, icon: FileText, color: "text-purple-500", bg: "bg-purple-500/10" },
+          { label: "Awaiting Review", value: stats.pending, icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
+          { label: "Delete Requests", value: stats.deleteRequests, icon: AlertCircle, color: "text-red-500", bg: "bg-red-500/10" },
+          { label: "Conversations", value: stats.comments, icon: MessageSquare, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+        ].map((stat, i) => (
+          <div key={i} className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none">
+            <div className={`h-10 w-10 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-4`}>
+              <stat.icon size={20} />
+            </div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{stat.value}</h3>
+          </div>
+        ))}
       </div>
 
-      {/* Posts */}
-      {filteredPosts.length === 0 ? (
-        <p className="text-secondary">No posts found.</p>
-      ) : (
-        <div className="space-y-6">
-          {filteredPosts.map((post) => (
-            <article
-              key={post.id}
-              className="rounded-xl border border-theme bg-secondary p-5"
+      {/* Control Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Moderation Queue</h2>
+          <span className="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+            {filteredPosts.length} Items
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {["all", "pending", "approved", "requests"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f as StatusFilter)}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${filter === f
+                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-lg"
+                : "bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-indigo-500/30"
+                }`}
             >
-              {/* Header */}
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="font-semibold leading-snug">{post.title}</h2>
-                  <p className="mt-1 text-sm text-secondary">
-                    By {post.authorName} • {post.category} • {post.language}
-                  </p>
-                </div>
-
-                {/* Status */}
-                <span
-                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium
-                    ${
-                      post.approved
-                        ? "bg-primary/10 text-primary"
-                        : "bg-yellow-500/10 text-yellow-600"
-                    }`}
-                >
-                  {post.approved ? "Approved" : "Pending"}
-                </span>
-              </div>
-
-              {/* Content preview */}
-              <p className="mt-4 line-clamp-2 text-sm text-secondary">
-                {post.content}
-              </p>
-
-              {/* Actions */}
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href={`/post/${post.id}`}
-                  target="_blank"
-                  className="rounded-md border border-theme bg-transparent
-                             px-4 py-1.5 text-sm text-primary
-                             transition hover:bg-primary/10"
-                >
-                  View
-                </Link>
-
-                {!post.approved && (
-                  <button
-                    onClick={() => approvePost(post.id)}
-                    className="rounded-md bg-primary px-4 py-1.5
-                               text-sm text-white transition hover:opacity-90"
-                  >
-                    Approve
-                  </button>
-                )}
-
-                {post.approved && (
-                  <Link
-                    href={`/admin/edit/${post.id}`}
-                    className="rounded-md border border-theme
-                               px-4 py-1.5 text-sm
-                               transition hover:bg-primary/10"
-                  >
-                    Edit
-                  </Link>
-                )}
-
-                <button
-                  onClick={() => deletePost(post.id)}
-                  className="rounded-md border border-theme
-                             px-4 py-1.5 text-sm text-red-500
-                             transition hover:bg-red-500/10"
-                >
-                  Delete
-                </button>
-              </div>
-            </article>
+              {f === "requests" ? "Requests" : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
           ))}
         </div>
-      )}
+      </div>
+
+      {/* Moderation List */}
+      <div className="space-y-4">
+        {filteredPosts.length === 0 ? (
+          <div className="py-20 text-center rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+            <p className="text-slate-400 font-medium italic">All quiet in the sanctuary.</p>
+          </div>
+        ) : (
+          filteredPosts.map((post) => (
+            <div
+              key={post.id}
+              className="group p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-all hover:bg-slate-50 dark:hover:bg-slate-900 shadow-sm hover:shadow-md"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`h-2 w-2 rounded-full ${post.approved ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></span>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate tracking-tight">{post.title}</h3>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">
+                    <span className="flex items-center gap-1.5"><Users size={12} className="text-indigo-500" /> {post.authorName}</span>
+                    <span className="flex items-center gap-1.5 text-slate-300 dark:text-slate-700">|</span>
+                    <span className="flex items-center gap-1.5">{post.category}</span>
+                    <span className="flex items-center gap-1.5 text-slate-300 dark:text-slate-700">|</span>
+                    <span>{post.language}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/post/${post.slug || post.id}`}
+                    className="p-3 rounded-full border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-600/30 transition-all"
+                    title="Preview"
+                  >
+                    <Eye size={18} />
+                  </Link>
+
+                  {!post.approved && (
+                    <button
+                      onClick={() => approvePost(post.id)}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-full text-sm font-bold transition-all hover:bg-emerald-700 shadow-lg shadow-emerald-500/20"
+                    >
+                      <CheckCircle size={18} />
+                      Approve
+                    </button>
+                  )}
+
+                  <Link
+                    href={`/admin/edit/${post.id}`}
+                    className="p-3 rounded-full border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-amber-600 hover:border-amber-600/30 transition-all"
+                    title="Edit"
+                  >
+                    <Edit3 size={18} />
+                  </Link>
+
+                  <button
+                    onClick={() => deletePost(post.id)}
+                    className="p-3 rounded-full border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-red-500 hover:border-red-500/30 transition-all"
+                    title="Delete"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </section>
   );
 }
