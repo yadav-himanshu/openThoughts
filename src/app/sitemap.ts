@@ -36,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const data = doc.data();
 
       urls.push({
-        url: `${baseUrl}/post/${doc.id}`,
+        url: `${baseUrl}/post/${data.slug || doc.id}`,
         lastModified: new Date(),
       });
 

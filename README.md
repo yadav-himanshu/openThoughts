@@ -22,13 +22,13 @@ With OpenThoughts, I wanted to build something closer to a **real product**:
 
 ## Key Features
 
-- Public post submission (no login required)
-- Categories and author-based browsing
-- Likes, comments, and view counts
-- Admin dashboard to approve, edit, or delete posts
-- Admin-only comment deletion
-- Post deletion request flow via email
-- Responsive UI with dark / light theme
+- **Public Submissions**: Share thoughts without an account.
+- **Slug-based Routing**: Beautiful, SEO-friendly URLs for all posts.
+- **Dashboard**: Personal space to manage profile, posts, and saved stories.
+- **Admin Moderation**: Comprehensive queue for approvals and deletion requests.
+- **Newsletter**: Interactive subscription form in the footer.
+- **Save & Share**: Bookmark your favorite thoughts and share them easily.
+- **Responsive Soft UI**: Premium dark/light themes with smooth transitions.
 
 ---
 
@@ -36,16 +36,11 @@ With OpenThoughts, I wanted to build something closer to a **real product**:
 
 This project implements **actual SEO**, not just meta tags:
 
-- Server-side metadata using Next.js App Router
-- Dynamic titles & descriptions for:
-  - Posts
-  - Authors
-  - Categories
-- Canonical URLs
-- Open Graph tags for social sharing
-- Dynamic `sitemap.xml` (approved posts only)
-- `robots.txt` blocking admin routes
-- Google Search Console integration
+- **Server-side Metadata**: Using Next.js App Router for dynamic pages.
+- **Slugified URLs**: Clean URLs like `/post/my-poetry-a1b2c`.
+- **Sitemap & Robots**: Automatically generated and perfectly tuned.
+- **Canonical Tags**: Preventing duplicate content issues.
+- **Open Graph**: Optimized for social media sharing.
 
 ---
 
@@ -66,23 +61,21 @@ This project implements **actual SEO**, not just meta tags:
 ```txt
 src/
 ├─ app/
-│ ├─ page.tsx
-│ ├─ post/[id]/
-│ ├─ author/[name]/
-│ ├─ category/[name]/
-│ ├─ admin/
-│ ├─ api/
-│ ├─ sitemap.ts
-│ └─ robots.ts
-│
+│  ├─ post/[id]/        # Supports BOTH slug and ID
+│  ├─ dashboard/        # User management hub
+│  ├─ admin/dashboard/  # Admin moderation hub
+│  ├─ submit/           # Smart slug generation
+│  ├─ sitemap.ts        # Slug-aware sitemaps
+│  └─ robots.ts         # SEO rules
 ├─ components/
-│ ├─ PostList.tsx
-│ ├─ Comments.tsx
-│ ├─ Navbar.tsx
-│ ├─ Footer.tsx
-│ ├─ ThemeToggle.tsx
-│ └─ DeleteRequestForm.tsx
-
+│  ├─ Footer.tsx        # Newsletter subscription
+│  ├─ PostList.tsx      # Slug-preferred navigation
+│  └─ Comments.tsx
+├─ lib/
+│  ├─ slugify.ts        # Native slug logic
+│  └─ firebase.ts
+└─ context/
+   └─ AuthContext.tsx
 ```
 ---
 
