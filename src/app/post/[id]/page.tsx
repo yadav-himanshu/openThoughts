@@ -12,6 +12,9 @@ export async function generateMetadata({
   const { id } = await params;
 
   try {
+    // We can't easily use Firebase Admin here without more setup, 
+    // but the existing API route might already handle this or we update it.
+    // Assuming /api/post-meta/[id] should handle slug too.
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SITE_URL}/api/post-meta/${id}`,
       { cache: "no-store" },
@@ -28,13 +31,13 @@ export async function generateMetadata({
       title: data.title,
       description,
       alternates: {
-        canonical: `/post/${id}`,
+        canonical: `/post/${data.slug || id}`,
       },
       openGraph: {
         title: data.title,
         description,
         type: "article",
-        url: `/post/${id}`,
+        url: `/post/${data.slug || id}`,
       },
     };
   } catch {

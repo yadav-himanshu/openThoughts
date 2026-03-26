@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export async function GET(
@@ -9,8 +9,16 @@ export async function GET(
   try {
     const { id } = await context.params; // ✅ REQUIRED
 
-    const ref = doc(db, "posts", id);
-    const snap = await getDoc(ref);
+    let ref = doc(db, "posts", id);
+    let snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      const q = query(collection(db, "posts"), where("slug", "==", id), limit(1));
+      const querySnap = await getDocs(q);
+      if (!querySnap.empty) {
+        snap = querySnap.docs[0];
+      }
+    }
 
     if (!snap.exists()) {
       return NextResponse.json(
@@ -26,6 +34,7 @@ export async function GET(
       content: data.content,
       authorName: data.authorName,
       category: data.category,
+      slug: data.slug || snap.id,
     });
   } catch {
     return NextResponse.json(

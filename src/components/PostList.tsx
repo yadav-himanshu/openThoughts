@@ -17,6 +17,7 @@ import {
   QueryConstraint,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Eye, Heart, User, Clock, ChevronRight } from "lucide-react";
 
 /* -----------------------------
    Types
@@ -29,6 +30,9 @@ type Post = {
   content: string;
   createdAt: Timestamp;
   approved: boolean;
+  viewsCount?: number;
+  likesCount?: number;
+  slug?: string;
 };
 
 type PostListProps = {
@@ -45,7 +49,7 @@ const CATEGORIES = [
   "Thoughts",
 ];
 
-const PAGE_SIZE = 7;
+const PAGE_SIZE = 9;
 
 export default function PostList({
   fixedCategory = null,
@@ -110,7 +114,7 @@ export default function PostList({
 
     setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
     setHasMore(snapshot.docs.length === PAGE_SIZE);
-    setPosts((prev) => (reset ? docs : [...prev, ...docs]));
+    setPosts((prev) => (reset ? docs : [...prev, ...docs])); // Keeping load more for simplicity but ensuring 9 limit
     setLoading(false);
   };
 
@@ -162,59 +166,58 @@ export default function PostList({
         </div>
       )}
 
-      {/* Posts */}
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredPosts.map((post) => (
           <article
             key={post.id}
-            onClick={() => router.push(`/post/${post.id}`)} // 🔹 NEW
-            className="rounded-xl border border-theme bg-secondary
-                       p-5 transition hover:shadow-sm
-                       cursor-pointer"
+            onClick={() => router.push(`/post/${post.slug || post.id}`)}
+            className="group relative flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 transition-all hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden shadow-sm"
           >
-            {/* Title */}
-            <h2 className="text-lg font-semibold leading-snug">
-              <Link
-                href={`/post/${post.id}`}
-                onClick={(e) => e.stopPropagation()} // 🔹 NEW
-                className="hover:text-primary-hover transition"
-              >
-                {post.title}
-              </Link>
-            </h2>
-
-            {/* Meta */}
-            <div className="mt-1 text-sm text-secondary flex flex-wrap gap-1">
-              <span>By</span>
-              <Link
-                href={`/author/${encodeURIComponent(post.authorName)}`}
-                onClick={(e) => e.stopPropagation()} // 🔹 NEW
-                className="font-medium text-primary hover:underline"
-              >
-                {post.authorName}
-              </Link>
-              <span>•</span>
-              <Link
-                href={`/category/${encodeURIComponent(post.category)}`}
-                onClick={(e) => e.stopPropagation()} // 🔹 NEW
-                className="hover:underline"
-              >
+            {/* Category Tag */}
+            <div className="flex justify-between items-start mb-6">
+              <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-bold uppercase tracking-widest text-slate-500 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
                 {post.category}
-              </Link>
+              </span>
+              <div className="flex items-center gap-3 text-slate-400 dark:text-slate-500">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-tighter">
+                  <Eye size={14} className="text-slate-300 dark:text-slate-600" />
+                  {post.viewsCount || 0}
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-tighter">
+                  <Heart size={14} className="text-slate-300 dark:text-slate-600" />
+                  {post.likesCount || 0}
+                </div>
+              </div>
             </div>
 
-            {/* Date */}
-            <p className="mt-1 text-xs text-secondary">
-              {post.createdAt?.toDate().toDateString()}
-            </p>
+            {/* Title */}
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 line-clamp-2 leading-tight tracking-tighter group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              {post.title}
+            </h2>
 
             {/* Content Preview */}
-            <p className="mt-4 text-sm text-secondary leading-relaxed">
-              {post.content.slice(0, 60)}…
-              <span className="ml-1 text-primary font-medium">
-                Tap to read full post →
-              </span>
+            <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-8 leading-relaxed italic font-serif">
+              "{post.content.slice(0, 100)}..."
             </p>
+
+            {/* Footer */}
+            <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                  <User size={14} className="text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="flex flex-col -space-y-0.5">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white">{post.authorName}</span>
+                  <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                    <Clock size={10} />
+                    {post.createdAt?.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </div>
+                </div>
+              </div>
+              <div className="h-9 w-9 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-100 dark:border-slate-700 transition-all group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600">
+                <ChevronRight size={16} />
+              </div>
+            </div>
           </article>
         ))}
       </div>
